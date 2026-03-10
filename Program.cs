@@ -19,6 +19,11 @@ class Program
         try
         {
             ExpandPriResources();
+
+            // Allow CI to expand PRI resources without starting the GUI
+            if (args.Contains("--expand-pri"))
+                return;
+
             WinRT.ComWrappersSupport.InitializeComWrappers();
 
             _ctrlHandler = _ => { Environment.Exit(0); return true; };

@@ -17,6 +17,9 @@ jobs:
       - name: Publish
         run: dotnet publish --configuration Release --output ./publish
 
+      - name: Expand PRI resources
+        run: ./publish/UsbBridge.exe --expand-pri
+
       - name: Build installer
         run: iscc /DAPP_VERSION="${{ github.ref_name }}" installer.iss
 
