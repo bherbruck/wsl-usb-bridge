@@ -34,7 +34,7 @@ public partial class App : Application
 
             _tray = new TaskbarIcon
             {
-                ToolTipText = "USB Bridge",
+                ToolTipText = "WSL USB Bridge",
                 IconSource = new GeneratedIconSource
                 {
                     Text = "\uE88E",

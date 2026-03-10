@@ -3,7 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:UsbBridge"
-    Title="USB Bridge">
+    Title="WSL USB Bridge">
 
     <Window.SystemBackdrop>
         <MicaBackdrop />
@@ -22,7 +22,7 @@
         <!-- Custom Title Bar -->
         <Grid x:Name="AppTitleBar" Grid.Row="0" Height="32"
               Background="Transparent">
-            <TextBlock Text="USB Bridge"
+            <TextBlock Text="WSL USB Bridge"
                        VerticalAlignment="Center"
                        Margin="12,0,0,0"
                        Style="{StaticResource CaptionTextBlockStyle}" />
