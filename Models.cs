@@ -50,5 +50,5 @@ public record AppConfig
     public string? WslDistribution { get; set; }
     public int PollMs { get; set; } = 500;
     public bool StartWithWindows { get; set; } = false;
-    public bool StartMinimized { get; set; } = true;
+    public bool StartMinimized { get; set; } = false;
 }
