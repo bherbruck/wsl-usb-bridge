@@ -1,6 +1,6 @@
 [Setup]
 AppName=WSL USB Bridge
-AppVersion={#GetEnv('APP_VERSION')}
+AppVersion={#APP_VERSION}
 AppPublisher=bherbruck
 DefaultDirName={autopf}\WSL USB Bridge
 DefaultGroupName=WSL USB Bridge
