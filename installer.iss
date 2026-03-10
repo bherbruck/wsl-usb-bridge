@@ -2,7 +2,7 @@
 AppName=WSL USB Bridge
 AppVersion={#APP_VERSION}
 AppPublisher=bherbruck
-DefaultDirName={autopf}\WSL USB Bridge
+DefaultDirName={localappdata}\WSL USB Bridge
 DefaultGroupName=WSL USB Bridge
 UninstallDisplayIcon={app}\UsbBridge.exe
 OutputDir=output
@@ -10,7 +10,7 @@ OutputBaseFilename=WslUsbBridge-Setup-x64
 Compression=lzma2
 SolidCompression=yes
 ArchitecturesInstallIn64BitMode=x64compatible
-PrivilegesRequired=admin
+PrivilegesRequired=lowest
 
 [Files]
 Source: "publish\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
