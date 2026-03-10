@@ -13,8 +13,6 @@
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
     <SelfContained>true</SelfContained>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <AppxGeneratePriEnabled>false</AppxGeneratePriEnabled>
-    <EnableCoreMrtTooling>false</EnableCoreMrtTooling>
     <DefineConstants>DISABLE_XAML_GENERATED_MAIN</DefineConstants>
   </PropertyGroup>
 
@@ -24,24 +22,5 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.*" />
   </ItemGroup>
 
-  <!-- Override targets that require VS build tools (not available in CLI-only builds) -->
-  <Target Name="CopyLocalFilesOutputGroup" />
-  <Target Name="AddPriPayloadFilesToCopyToOutputDirectoryItems" />
-  <Target Name="_ExpandPriFiles" />
-  <Target Name="_ExpandProjectPriFile" />
-  <Target Name="_ExpandReferencePriFile" />
-
-  <!--
-    MRT in unpackaged mode loads resources.pri as the root PRI.
-    The SDK PRI (Microsoft.UI.Xaml.Controls.pri) contains the "Microsoft.UI.Xaml" resource map
-    needed by WinUI controls (TabView, NavigationView, etc.).
-    Without VS build tools we can't merge PRIs, so copy the SDK PRI as resources.pri.
-  -->
-  <Target Name="_CopyControlsPriAsResources" AfterTargets="Build"
-          Condition="!Exists('$(OutputPath)resources.pri')">
-    <Copy SourceFiles="$(OutputPath)Microsoft.UI.Xaml.Controls.pri"
-          DestinationFiles="$(OutputPath)resources.pri"
-          Condition="Exists('$(OutputPath)Microsoft.UI.Xaml.Controls.pri')" />
-  </Target>
 
 </Project>
