@@ -22,21 +22,25 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.*" />
   </ItemGroup>
 
-  <!-- Copy XAML files to output so MRT can find them as loose files (no PRI merge without VS) -->
-  <ItemGroup>
-    <Content Include="**\*.xaml" Exclude="obj\**" CopyToOutputDirectory="PreserveNewest" />
-  </ItemGroup>
-
   <!--
-    MRT in unpackaged mode needs resources.pri. Without VS build tools the PRI merge doesn't run,
-    so copy the SDK PRI as resources.pri. Also copy XBF files from SDK PRIs at build time.
+    dotnet publish doesn't copy XBF files or app PRI to the publish directory.
+    Copy them from the build output after publish.
   -->
-  <Target Name="_CopyControlsPriAsResources" AfterTargets="Publish"
-          Condition="!Exists('$(PublishDir)resources.pri')">
-    <Copy SourceFiles="$(PublishDir)Microsoft.UI.Xaml.Controls.pri"
-          DestinationFiles="$(PublishDir)resources.pri"
-          Condition="Exists('$(PublishDir)Microsoft.UI.Xaml.Controls.pri')" />
+  <Target Name="_CopyWinUIResourcesToPublish" AfterTargets="Publish">
+    <!-- Copy app XBF files -->
+    <ItemGroup>
+      <_XbfFiles Include="$(OutputPath)*.xbf" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_XbfFiles)" DestinationFolder="$(PublishDir)" SkipUnchangedFiles="true" />
+    <!-- Copy app PRI -->
+    <Copy SourceFiles="$(OutputPath)$(AssemblyName).pri" DestinationFolder="$(PublishDir)"
+          Condition="Exists('$(OutputPath)$(AssemblyName).pri')" SkipUnchangedFiles="true" />
+    <!-- Copy resources.pri (SDK PRI used as root PRI for MRT in unpackaged mode) -->
+    <Copy SourceFiles="$(OutputPath)resources.pri" DestinationFolder="$(PublishDir)"
+          Condition="Exists('$(OutputPath)resources.pri')" SkipUnchangedFiles="true" />
   </Target>
+
+  <!-- Copy SDK PRI as resources.pri for build (local dev) -->
   <Target Name="_CopyControlsPriAsResourcesBuild" AfterTargets="Build"
           Condition="!Exists('$(OutputPath)resources.pri')">
     <Copy SourceFiles="$(OutputPath)Microsoft.UI.Xaml.Controls.pri"
