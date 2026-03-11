@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.IO;
 using System.Windows.Input;
 using H.NotifyIcon;
@@ -108,6 +107,6 @@ public partial class App : Application
         }
         catch { }
 
-        Process.GetCurrentProcess().Kill();
+        Environment.Exit(0);
     }
 }
