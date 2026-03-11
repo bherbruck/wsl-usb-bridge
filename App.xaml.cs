@@ -34,15 +34,7 @@ public partial class App : Application
             _tray = new TaskbarIcon
             {
                 ToolTipText = "WSL USB Bridge",
-                IconSource = new GeneratedIconSource
-                {
-                    Text = "\uE88E",
-                    FontFamily = new Microsoft.UI.Xaml.Media.FontFamily("Segoe Fluent Icons"),
-                    Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.White),
-                    Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(
-                        Windows.UI.Color.FromArgb(255, 0, 120, 215)),
-                    FontSize = 100,
-                },
+                IconSource = Path.Combine(AppContext.BaseDirectory, "icon.ico"),
                 ContextFlyout = BuildFlyout(),
                 DoubleClickCommand = new RelayAction(ShowWindow)
             };

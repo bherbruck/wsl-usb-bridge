@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- Portal first -->
+  <ellipse
+    cx="128"
+    cy="156"
+    rx="100"
+    ry="36"
+    fill="#7c3aed"
+    stroke="#a78bfa"
+    stroke-width="7"
+  />
+
+  <!-- Drive body: rounded top, wavy bottom -->
+  <path
+    d="
+    M 88,106 Q 88,96 98,96
+    L 158,96 Q 168,96 168,106
+    L 168,162
+    Q 158,157 148,162
+    Q 138,167 128,162
+    Q 118,157 108,162
+    Q 98,167 88,162
+    Z
+  "
+    fill="#e2e8f0"
+  />
+
+  <!-- Blue accent: rounded top, flat bottom -->
+  <path d="M 88,140 L 88,106 Q 88,96 98,96 L 158,96 Q 168,96 168,106 L 168,140 Z" fill="#3b82f6" />
+
+  <!-- USB connector: rounded top, flat bottom -->
+  <path
+    d="M 96,96 L 96,68 Q 96,64 100,64 L 156,64 Q 160,64 160,68 L 160,96 Z"
+    fill="#e2e8f0"
+  />
+  <rect x="108" y="70" width="12" height="18" rx="2" fill="#64748b" />
+  <rect x="136" y="70" width="12" height="18" rx="2" fill="#64748b" />
+</svg>
