@@ -8,6 +8,10 @@
     <UseWinUI>true</UseWinUI>
     <RootNamespace>UsbBridge</RootNamespace>
     <AssemblyName>UsbBridge</AssemblyName>
+    <Product>WSL USB Bridge</Product>
+    <AssemblyTitle>WSL USB Bridge</AssemblyTitle>
+    <FileVersion>0.1.0</FileVersion>
+    <InformationalVersion>0.1.0</InformationalVersion>
     <Platforms>x64</Platforms>
     <WindowsPackageType>None</WindowsPackageType>
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
