@@ -17,18 +17,19 @@ jobs:
       - name: Publish
         run: dotnet publish --configuration Release
 
-      - name: List publish output
+      - name: List build and publish output
         shell: pwsh
         run: |
-          $publishDir = "bin\Release\net10.0-windows10.0.19041.0\win-x64\publish"
-          Write-Host "=== PRI files ==="
-          Get-ChildItem -Path $publishDir -Filter *.pri -Recurse | ForEach-Object { $_.FullName }
-          Write-Host "=== XBF files ==="
+          $buildDir = "bin\Release\net10.0-windows10.0.19041.0\win-x64"
+          $publishDir = "$buildDir\publish"
+          Write-Host "=== BUILD: PRI files ==="
+          Get-ChildItem -Path $buildDir -Filter *.pri -Depth 0 | ForEach-Object { $_.Name }
+          Write-Host "=== BUILD: XBF files ==="
+          Get-ChildItem -Path $buildDir -Filter *.xbf -Recurse -Depth 1 | ForEach-Object { $_.FullName }
+          Write-Host "=== PUBLISH: PRI files ==="
+          Get-ChildItem -Path $publishDir -Filter *.pri -Recurse | ForEach-Object { $_.Name }
+          Write-Host "=== PUBLISH: XBF files ==="
           Get-ChildItem -Path $publishDir -Filter *.xbf -Recurse | ForEach-Object { $_.FullName }
-          Write-Host "=== XAML files ==="
-          Get-ChildItem -Path $publishDir -Filter *.xaml -Recurse | ForEach-Object { $_.FullName }
-          Write-Host "=== Root files ==="
-          Get-ChildItem -Path $publishDir -File | ForEach-Object { $_.Name }
 
       - name: Build installer
         run: iscc /DAPP_VERSION="${{ github.ref_name }}" installer.iss
