@@ -11,32 +11,30 @@
 
     <MediaTemplate EmbedCab="yes" />
 
+    <StandardDirectory Id="LocalAppDataFolder">
+      <Directory Id="INSTALLFOLDER" Name="WSL USB Bridge" />
+    </StandardDirectory>
+
+    <ComponentGroup Id="PublishFiles" Directory="INSTALLFOLDER">
+      <Files Include="$(PublishDir)**" />
+    </ComponentGroup>
+
+    <Component Id="StartMenuShortcut" Directory="INSTALLFOLDER"
+               Guid="A1B2C3D4-E5F6-7890-ABCD-EF1234567890">
+      <RegistryValue Root="HKCU" Key="Software\WslUsbBridge" Name="installed"
+                     Type="integer" Value="1" KeyPath="yes" />
+      <Shortcut Id="StartMenuShortcut"
+                Name="WSL USB Bridge"
+                Target="[INSTALLFOLDER]UsbBridge.exe"
+                WorkingDirectory="INSTALLFOLDER"
+                Directory="ProgramMenuFolder" />
+    </Component>
+
     <Feature Id="Main" Title="WSL USB Bridge" Level="1">
       <ComponentGroupRef Id="PublishFiles" />
       <ComponentRef Id="StartMenuShortcut" />
     </Feature>
 
   </Package>
-
-  <!-- Install to LocalAppData\WSL USB Bridge -->
-  <StandardDirectory Id="LocalAppDataFolder">
-    <Directory Id="INSTALLFOLDER" Name="WSL USB Bridge">
-
-      <Component Id="StartMenuShortcut" Guid="A1B2C3D4-E5F6-7890-ABCD-EF1234567890">
-        <RegistryValue Root="HKCU" Key="Software\WslUsbBridge" Name="installed" Type="integer" Value="1" KeyPath="yes" />
-        <Shortcut Id="StartMenuShortcut"
-                  Name="WSL USB Bridge"
-                  Target="[INSTALLFOLDER]UsbBridge.exe"
-                  WorkingDirectory="INSTALLFOLDER"
-                  Directory="ProgramMenuFolder" />
-        <RemoveFolder Id="CleanupStartMenu" Directory="ProgramMenuFolder" On="uninstall" />
-      </Component>
-
-    </Directory>
-  </StandardDirectory>
-
-  <ComponentGroup Id="PublishFiles" Directory="INSTALLFOLDER">
-    <Files Include="$(PublishDir)**" />
-  </ComponentGroup>
 
 </Wix>
