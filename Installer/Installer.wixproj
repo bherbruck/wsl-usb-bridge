@@ -1,0 +1,15 @@
+<Project Sdk="WixToolset.Sdk/6.0.0">
+
+  <PropertyGroup>
+    <OutputType>Package</OutputType>
+    <Platforms>x64</Platforms>
+    <InstallerPlatform>x64</InstallerPlatform>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PublishDir>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\bin\Release\net10.0-windows10.0.19041.0\win-x64\publish'))\</PublishDir>
+    <DefineConstants>PublishDir=$(PublishDir)</DefineConstants>
+    <OutputName>WslUsbBridge-x64</OutputName>
+  </PropertyGroup>
+
+</Project>
