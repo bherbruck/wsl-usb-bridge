@@ -34,7 +34,7 @@ public partial class App : Application
             _tray = new TaskbarIcon
             {
                 ToolTipText = "WSL USB Bridge",
-                IconSource = new BitmapIconSource { UriSource = new Uri(Path.Combine(AppContext.BaseDirectory, "icon.ico")) },
+                IconSource = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(new Uri(Path.Combine(AppContext.BaseDirectory, "icon.ico"))),
                 ContextFlyout = BuildFlyout(),
                 DoubleClickCommand = new RelayAction(ShowWindow)
             };
