@@ -10,6 +10,7 @@ public class UsbIpdService
 {
     private CancellationTokenSource? _cts;
     private readonly HashSet<string> _attachedBusIds = [];
+    private bool _elevationDenied;
 
     public event Action<DeviceEvent>? OnAttached;
     public event Action<DeviceEvent>? OnDetached;
@@ -32,6 +33,7 @@ public class UsbIpdService
         _cts?.Dispose();
         _cts = null;
         _attachedBusIds.Clear();
+        _elevationDenied = false;
     }
 
     private async Task PollLoop(AppConfig config, CancellationToken ct)
@@ -63,7 +65,13 @@ public class UsbIpdService
                     await Delay(500, ct);
 
                     await Run($"detach --busid {busId}", ct);
-                    await Run($"bind --busid {busId}{(force ? " --force" : "")}", ct);
+                    var bindArgs = $"bind --busid {busId}{(force ? " --force" : "")}";
+                    var bindExit = await RunChecked(bindArgs, ct);
+                    if (bindExit != 0 && !_elevationDenied)
+                    {
+                        if (!await RunElevated(bindArgs, ct))
+                            _elevationDenied = true;
+                    }
                     await Delay(500, ct);
 
                     var args = $"attach --wsl --busid {busId}";
@@ -105,7 +113,10 @@ public class UsbIpdService
 
     public static async Task BridgeOnce(string busId, bool force, string? distribution)
     {
-        await Run($"bind --busid {busId}{(force ? " --force" : "")}", CancellationToken.None);
+        var bindArgs = $"bind --busid {busId}{(force ? " --force" : "")}";
+        var bindExit = await RunChecked(bindArgs, CancellationToken.None);
+        if (bindExit != 0)
+            await RunElevated(bindArgs);
         await Task.Delay(500);
         var args = $"attach --wsl --busid {busId}";
         if (!string.IsNullOrEmpty(distribution))
@@ -113,9 +124,17 @@ public class UsbIpdService
         await Run(args, CancellationToken.None);
     }
 
+    public static async Task Detach(string busId)
+    {
+        await Run($"detach --busid {busId}", CancellationToken.None);
+    }
+
     public static async Task Unbind(string busId)
     {
-        await Run($"unbind --busid {busId}", CancellationToken.None);
+        var unbindArgs = $"unbind --busid {busId}";
+        var exitCode = await RunChecked(unbindArgs, CancellationToken.None);
+        if (exitCode != 0)
+            await RunElevated(unbindArgs);
     }
 
     // --- helpers ---
@@ -155,6 +174,51 @@ public class UsbIpdService
         var output = await proc.StandardOutput.ReadToEndAsync(ct);
         await proc.WaitForExitAsync(ct);
         return output;
+    }
+
+    static async Task<int> RunChecked(string args, CancellationToken ct)
+    {
+        using var proc = new Process
+        {
+            StartInfo = new()
+            {
+                FileName = "usbipd",
+                Arguments = args,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            }
+        };
+        proc.Start();
+        await proc.StandardOutput.ReadToEndAsync(ct);
+        await proc.WaitForExitAsync(ct);
+        return proc.ExitCode;
+    }
+
+    static async Task<bool> RunElevated(string args, CancellationToken ct = default)
+    {
+        using var proc = new Process
+        {
+            StartInfo = new()
+            {
+                FileName = "usbipd",
+                Arguments = args,
+                UseShellExecute = true,
+                Verb = "runas"
+            }
+        };
+        try
+        {
+            proc.Start();
+            await proc.WaitForExitAsync(ct);
+            return proc.ExitCode == 0;
+        }
+        catch (System.ComponentModel.Win32Exception)
+        {
+            // User denied UAC prompt
+            return false;
+        }
     }
 
     static async Task Delay(int ms, CancellationToken ct)

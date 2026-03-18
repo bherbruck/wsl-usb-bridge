@@ -19,6 +19,8 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
+        <local:TrayIconView />
+
         <!-- Custom Title Bar -->
         <Grid x:Name="AppTitleBar" Grid.Row="0" Height="32"
               Background="Transparent">
@@ -46,7 +48,8 @@
                            VerticalAlignment="Center" />
                 <ToggleSwitch Grid.Column="1"
                               IsOn="{Binding IsRunning, Mode=TwoWay}"
-                              VerticalAlignment="Center" />
+                              VerticalAlignment="Center"
+                              MinWidth="0" />
             </Grid>
 
             <!-- Single scrollable view -->
@@ -55,7 +58,7 @@
                           HorizontalScrollBarVisibility="Disabled">
                 <StackPanel>
                     <!-- Your devices -->
-                    <TextBlock Text="Your devices"
+                    <TextBlock Text="Bridged devices"
                                Style="{StaticResource BodyStrongTextBlockStyle}"
                                Margin="0,0,0,4" />
                     <ItemsRepeater ItemsSource="{Binding ForwardedDevices}">
@@ -75,7 +78,6 @@
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto" />
                                                 <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="Auto" />
                                             </Grid.ColumnDefinitions>
                                             <Border Grid.Column="0" Width="36" Height="36" CornerRadius="18"
                                                     Background="{ThemeResource ControlFillColorDefaultBrush}"
@@ -89,10 +91,6 @@
                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                            Style="{StaticResource CaptionTextBlockStyle}" />
                                             </StackPanel>
-                                            <TextBlock Grid.Column="2" Text="{Binding Status}"
-                                                       Foreground="{Binding StatusColor, Converter={StaticResource StringToBrushConverter}}"
-                                                       VerticalAlignment="Center"
-                                                       Style="{StaticResource CaptionTextBlockStyle}" />
                                         </Grid>
                                         <!-- Expanded actions -->
                                         <StackPanel Visibility="{Binding IsExpanded, Converter={StaticResource BoolToVisibilityConverter}}"
@@ -100,8 +98,12 @@
                                             <CheckBox Content="Bridge automatically"
                                                       IsChecked="{Binding HasRule, Mode=OneWay}"
                                                       Command="{Binding ElementName=RootGrid, Path=Tag.ToggleDeviceRuleCommand}"
-                                                      CommandParameter="{Binding}" />
-                                            <Button Content="Bridge"
+                                                      CommandParameter="{Binding}">
+                                                <CheckBox.Resources>
+                                                    <SolidColorBrush x:Key="CheckBoxCheckGlyphForegroundUnchecked" Color="Transparent" />
+                                                </CheckBox.Resources>
+                                            </CheckBox>
+                                            <Button Content="{Binding BridgeLabel}"
                                                     Style="{StaticResource AccentButtonStyle}"
                                                     HorizontalAlignment="Right"
                                                     Command="{Binding ElementName=RootGrid, Path=Tag.BridgeDeviceCommand}"
@@ -112,7 +114,7 @@
                             </DataTemplate>
                         </ItemsRepeater.ItemTemplate>
                     </ItemsRepeater>
-                    <TextBlock Text="No bridged devices"
+                    <TextBlock Text="No devices currently bridged"
                                Visibility="{Binding IsForwardedEmpty, Converter={StaticResource BoolToVisibilityConverter}}"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                Style="{StaticResource CaptionTextBlockStyle}"
@@ -159,8 +161,12 @@
                                             <CheckBox Content="Bridge automatically"
                                                       IsChecked="{Binding HasRule, Mode=OneWay}"
                                                       Command="{Binding ElementName=RootGrid, Path=Tag.ToggleDeviceRuleCommand}"
-                                                      CommandParameter="{Binding}" />
-                                            <Button Content="Bridge"
+                                                      CommandParameter="{Binding}">
+                                                <CheckBox.Resources>
+                                                    <SolidColorBrush x:Key="CheckBoxCheckGlyphForegroundUnchecked" Color="Transparent" />
+                                                </CheckBox.Resources>
+                                            </CheckBox>
+                                            <Button Content="{Binding BridgeLabel}"
                                                     Style="{StaticResource AccentButtonStyle}"
                                                     HorizontalAlignment="Right"
                                                     Command="{Binding ElementName=RootGrid, Path=Tag.BridgeDeviceCommand}"
@@ -249,22 +255,9 @@
                                   Margin="4,0" />
 
                     <!-- Activity -->
-                    <Expander Header="Activity" Margin="0,0,0,0"
-                              HorizontalAlignment="Stretch"
-                              HorizontalContentAlignment="Stretch">
-                        <ItemsRepeater ItemsSource="{Binding Log}">
-                            <ItemsRepeater.Layout>
-                                <StackLayout Spacing="0" />
-                            </ItemsRepeater.Layout>
-                            <ItemsRepeater.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding}"
-                                               FontFamily="Cascadia Code,Consolas"
-                                               TextWrapping="NoWrap" />
-                                </DataTemplate>
-                            </ItemsRepeater.ItemTemplate>
-                        </ItemsRepeater>
-                    </Expander>
+                    <Button Content="View activity log"
+                            Command="{Binding OpenLogCommand}"
+                            Margin="0,8,0,0" />
                 </StackPanel>
             </ScrollViewer>
         </Grid>

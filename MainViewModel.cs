@@ -1,4 +1,6 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
 using Microsoft.UI;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
@@ -60,8 +62,16 @@ public partial class DeviceViewModel : ObservableObject
     [ObservableProperty] private string description = "";
     [ObservableProperty] private string status = "Disconnected";
     [ObservableProperty] private string statusColor = "#95a5a6";
-    [ObservableProperty] private bool hasRule;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(AutoBridgeLabel))]
+    private bool hasRule;
     [ObservableProperty] private bool isExpanded;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(BridgeLabel))]
+    private bool isAttached;
+
+    public string BridgeLabel => IsAttached ? "Disconnect" : "Bridge";
+    public string AutoBridgeLabel => HasRule ? "Disable auto-bridge" : "Enable auto-bridge";
 }
 
 public partial class RuleViewModel : ObservableObject
@@ -90,6 +100,10 @@ public partial class MainViewModel : ObservableObject
 
     private string? _expandedBusId;
 
+    private static readonly string LogPath = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "UsbBridge", "activity.log");
+
     [ObservableProperty] private bool isRunning = true;
     [ObservableProperty] private bool startWithWindows;
     [ObservableProperty] private bool startMinimized;
@@ -99,7 +113,6 @@ public partial class MainViewModel : ObservableObject
     public ObservableCollection<DeviceViewModel> ForwardedDevices { get; } = [];
     public ObservableCollection<DeviceViewModel> OtherDevices { get; } = [];
     public ObservableCollection<RuleViewModel> Rules { get; } = [];
-    public ObservableCollection<string> Log { get; } = [];
 
     public bool IsForwardedEmpty => ForwardedDevices.Count == 0;
     public bool IsOtherEmpty => OtherDevices.Count == 0;
@@ -202,7 +215,10 @@ public partial class MainViewModel : ObservableObject
     async Task BridgeDevice(DeviceViewModel? device)
     {
         if (device is null || string.IsNullOrEmpty(device.BusId)) return;
-        await UsbIpdService.BridgeOnce(device.BusId, true, _config.WslDistribution);
+        if (device.IsAttached)
+            await UsbIpdService.Detach(device.BusId);
+        else
+            await UsbIpdService.BridgeOnce(device.BusId, true, _config.WslDistribution);
     }
 
     [RelayCommand]
@@ -274,8 +290,8 @@ public partial class MainViewModel : ObservableObject
             var hasRule = rulePatterns.Any(p => UsbIpdService.GlobMatch(d.VidPid!, p));
             var status = d.IsAttached ? "Attached" : d.IsBound ? "Shared" : "";
             var color = d.IsAttached ? "#2ecc71" : d.IsBound ? "#f39c12" : "#95a5a6";
-            var target = hasRule ? ForwardedDevices : OtherDevices;
-            var other = hasRule ? OtherDevices : ForwardedDevices;
+            var target = d.IsAttached ? ForwardedDevices : OtherDevices;
+            var other = d.IsAttached ? OtherDevices : ForwardedDevices;
 
             // Find existing VM in either collection
             var vm = target.FirstOrDefault(x => x.BusId == busId)
@@ -289,6 +305,7 @@ public partial class MainViewModel : ObservableObject
                 vm.Status = status;
                 vm.StatusColor = color;
                 vm.HasRule = hasRule;
+                vm.IsAttached = d.IsAttached;
 
                 // Move between collections if group changed
                 if (other.Remove(vm))
@@ -305,6 +322,7 @@ public partial class MainViewModel : ObservableObject
                     Status = status,
                     StatusColor = color,
                     HasRule = hasRule,
+                    IsAttached = d.IsAttached,
                     IsExpanded = busId == _expandedBusId
                 });
             }
@@ -313,8 +331,25 @@ public partial class MainViewModel : ObservableObject
 
     void AddLog(string msg)
     {
-        Log.Insert(0, $"[{DateTime.Now:HH:mm:ss}] {msg}");
-        while (Log.Count > 100) Log.RemoveAt(Log.Count - 1);
+        try
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(LogPath)!);
+            File.AppendAllText(LogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {msg}\n");
+        }
+        catch { }
+    }
+
+    [RelayCommand]
+    void OpenLog()
+    {
+        try
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(LogPath)!);
+            if (!File.Exists(LogPath))
+                File.WriteAllText(LogPath, "");
+            Process.Start(new ProcessStartInfo(LogPath) { UseShellExecute = true });
+        }
+        catch { }
     }
 
     void Dispatch(Action action) => _dispatcherQueue.TryEnqueue(() => action());

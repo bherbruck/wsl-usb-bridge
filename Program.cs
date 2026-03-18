@@ -20,7 +20,7 @@ class Program
         {
             WinRT.ComWrappersSupport.InitializeComWrappers();
 
-            _ctrlHandler = _ => { Environment.Exit(0); return true; };
+            _ctrlHandler = _ => { App.HandleClosedEvents = false; Environment.Exit(0); return true; };
             SetConsoleCtrlHandler(_ctrlHandler, true);
 
             Application.Start(_ =>

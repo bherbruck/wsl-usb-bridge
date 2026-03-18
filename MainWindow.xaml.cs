@@ -16,6 +16,13 @@ public sealed partial class MainWindow : Window
 
         AppWindow.Resize(new SizeInt32(500, 650));
         CenterOnScreen();
+
+        AppWindow.Closing += (_, e) =>
+        {
+            if (!App.HandleClosedEvents) return;
+            e.Cancel = true;
+            AppWindow.Hide();
+        };
     }
 
     private void CenterOnScreen()
