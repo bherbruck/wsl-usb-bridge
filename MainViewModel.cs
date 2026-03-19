@@ -193,7 +193,7 @@ public partial class MainViewModel : ObservableObject
             Pattern = NewPattern.Trim().ToLower(),
             Label = string.IsNullOrWhiteSpace(NewLabel) ? NewPattern : NewLabel.Trim(),
             Enabled = true,
-            ForceBind = true
+            ForceBind = false
         });
         NewPattern = "";
         NewLabel = "";
@@ -240,7 +240,7 @@ public partial class MainViewModel : ObservableObject
                 Pattern = device.VidPid,
                 Label = device.Description,
                 Enabled = true,
-                ForceBind = true
+                ForceBind = false
             });
             device.HasRule = true;
         }
